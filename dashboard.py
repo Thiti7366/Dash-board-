@@ -6,20 +6,16 @@ import plotly.express as px
 
 app = dash.Dash(__name__)
 
-# ดึงข้อมูล JSON จาก URL
 url = 'https://gpa.obec.go.th/reportdata/pp3-4_2566_province.json'
 response = requests.get(url)
 data = response.json()
 
-# แปลง JSON เป็น DataFrame ด้วย pandas
 df = pd.DataFrame(data)
 
-# แปลงคอลัมน์ totalmale และ totalfemale เป็นตัวเลขก่อน
 df['totalmale'] = pd.to_numeric(df['totalmale'], errors='coerce')
 df['totalfemale'] = pd.to_numeric(df['totalfemale'], errors='coerce')
 df['totalstd'] = pd.to_numeric(df['totalstd'], errors='coerce')
 
-# ข้อมูลพิกัดของแต่ละจังหวัด
 province_data = {
     'province': [
         'กระบี่', 'กรุงเทพมหานคร', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น', 'จันทบุรี', 'ฉะเชิงเทรา',
@@ -54,22 +50,18 @@ province_data = {
     ]
 }
 
-# แปลงข้อมูลพิกัดเป็น DataFrame
 geo_df = pd.DataFrame(province_data)
 
-# รวมข้อมูลพิกัดเข้ากับข้อมูลนักเรียน
 df = df.merge(geo_df, left_on='schools_province', right_on='province')
 
-# คำนวณจำนวนรวมของนักเรียนชายและหญิงในทุกจังหวัด
 total_male = df['totalmale'].sum()
 total_female = df['totalfemale'].sum()
 total_std = df['totalstd'].sum()
 
-# สร้าง Dropdown สำหรับเลือกจังหวัด
 dropdown_options = [{'label': province, 'value': province} for province in df['province'].unique()]
 
 app.layout = html.Div([
-    # Centered title
+   
     html.Div([
         html.H1(
             'จำนวนนักเรียนระดับมัธยมศึกษาปีที่ 6 ในปีการศึกษา 2566 แยกตามจังหวัด',
@@ -110,7 +102,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='province-dropdown',
             options=dropdown_options,
-            value='นครศรีธรรมราช'  # เลือกค่าเริ่มต้นเป็นจังหวัดแรกใน Dropdown
+            value='นครศรีธรรมราช' 
         ),
         dcc.Graph(id='example-graph'),
         html.Div(id='total-students')
